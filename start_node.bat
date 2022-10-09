@@ -1,1 +1,1 @@
-geth --identity "MyTestNetNode" --nodiscover --rpc --rpcport "8545" --rpccorsdomain "*" --datadir ./BlockchainData --port "30312" -networkid 1234 --nat "any" console
+geth --identity "MyTestNetNode" --nodiscover --http --http.port "8545" --http.corsdomain "*" --datadir ./BlockchainData --port "30312" -networkid 1234 --nat "any" console --allow-insecure-unlock

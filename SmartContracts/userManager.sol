@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1; // Use Version 0.5.1
+pragma solidity ^0.5.1;
 
 contract userManager { // Smart Contract User List
     
