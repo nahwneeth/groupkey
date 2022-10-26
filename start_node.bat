@@ -1,1 +1,1 @@
-geth --identity "MyTestNetNode" --nodiscover --http --http.port "8545" --http.corsdomain "*" --datadir ./BlockchainData --port "30312" -networkid 1234 --nat "any" console --allow-insecure-unlock
+geth --identity "MyTestNetNode" --nodiscover --http --http.port "8545" --http.corsdomain "*" --datadir ./BlockchainData --port "30312" -networkid 1234 --nat "any" console --allow-insecure-unlock --http.api "eth,net,web3,personal,miner,admin"

@@ -17,7 +17,7 @@ contract userManager { // Smart Contract User List
   }
 
   function insertUser(address userAddress, string memory publicKey, string memory notificationEmail) public returns(uint index) { // joinSmartContract() calls to insert new user
-    if(isUser(userAddress)) revert(); // Prevent users that are already joined from joining again thereby creating duplicate addresses
+    if(isUser(userAddress)) revert('[insertUser]'); // Prevent users that are already joined from joining again thereby creating duplicate addresses
     userStructs[userAddress].publicKey = publicKey;
     userStructs[userAddress].notificationEmail = notificationEmail;
     userStructs[userAddress].index = userIndex.push(userAddress)-1;
@@ -26,7 +26,7 @@ contract userManager { // Smart Contract User List
   }
   
   function getUserByAddress(address userAddress) public view returns(string memory publicKey, string memory notificationEmail, uint index) { // Get user by Wallet Address
-    if(!isUser(userAddress)) revert(); // If the user address isn't in userStructs, don't return the information.
+    if(!isUser(userAddress)) revert('[getUserByAddress]'); // If the user address isn't in userStructs, don't return the information.
     return(
       userStructs[userAddress].publicKey,
       userStructs[userAddress].notificationEmail,
@@ -57,7 +57,7 @@ contract userManager { // Smart Contract User List
   }
   
   function deleteUser(address userAddress) public { // Delete a user from the Smart Contract User List
-    if(!isUser(userAddress)) revert(); 
+    if(!isUser(userAddress)) revert('deleteUser'); 
     uint rowToDelete = userStructs[userAddress].index;
     address keyToMove = userIndex[userIndex.length-1];
     userIndex[rowToDelete] = keyToMove;
