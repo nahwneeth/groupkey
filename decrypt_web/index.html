@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decrypt</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="web3.min.js"></script>
+    <script src="BigInteger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+</head>
+<body>
+    <p>Your Wallet: <span id="current-walled-address"></span></p>
+    <label for="private-key">Private Key</label>
+    <input type="text" id="private-key">
+
+    <br>
+    
+    <label for="ipfs-path">IPFS Path</label>
+    <input type="text" id="ipfs-path">
+    <button onclick="decryptContent()">Decrypt</button>
+
+    <br>
+    <p>Decrypted Content: <span id="decrypted-content"></span></p>
+
+    <script>
+        var P = bigInt(124325339146889384540494091085456630009856882741872806181731279018491820800119460022367403769795008250021191767583423221479185609066059226301250167164084041279837566626881119772675984258163062926954046545485368458404445166682380071370274810671501916789361956272226105723317679562001235501455748016154805420913);
+        var G = bigInt(115740200527109164239523414760926155534485715860090261532154107313946218459149402375178179458041461723723231563839316251515439564315555249353831328479173170684416728715378198172203100328308536292821245983596065287318698169565702979765910089654821728828592422299160041156491980943427556153020487552135890973413);
+
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            // Set Web3 Provider
+            web3 = new Web3(new Web3.providers.HttpProvider("localhost:8545"));
+        }
+
+        var senderAccount;
+        web3.eth.getAccounts((error, accounts) => (senderAccount = accounts[0], document.getElementById('current-walled-address').innerHTML = senderAccount)); // Will user the current account selected in MetaMask. Refresh the page to update senderAccount after selected a new MetaMask account.
+
+        function decrypt(data, password) {
+            console.log("Decrypting data: " + data.toString());
+            console.log("With password: " + password.toString());
+            decryptedData = CryptoJS.AES.decrypt(data.toString(), password.toString());
+            return web3.utils.toAscii("0x".concat(decryptedData.toString()));
+        }
+
+        function calculateSecretFromPublicKey(A, B) {
+            var SecretAB = bigInt(B).modPow(bigInt(A.toString(), 16), P);
+            return SecretAB.toString();
+        }
+
+        async function decryptContent() {
+            var privKey = $("#private-key").val()
+            var ipfshash = $("#ipfs-path").val()
+
+            var data = await fetch("http://localhost:8080/ipfs/" + ipfshash).then((r) => r.json())
+            var index = data.Recipients.indexOf(senderAccount)
+            if (index == -1) {
+                return
+            }
+
+            var sec = calculateSecretFromPublicKey(privKey, data.senderPublicKey)
+            var gk = decrypt(data.encryptedGroupKey[index], sec)
+            
+            var decryptedContent = decrypt(data.encryptedData, gk)
+            console.log(decryptedContent)
+
+            document.getElementById('decrypted-content').innerHTML = decryptedContent
+        }
+    </script>
+</body>
+</html>

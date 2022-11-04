@@ -12,11 +12,12 @@
     <script src="BigInteger.min.js"></script>
     <script src="bundle.js"></script>
     <script src="web3.min.js"></script>
-    <script src="./node_modules/ipfs-http-client/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ipfs-http-client/dist/index.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"
         integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://bundle.run/buffer@5.2.1"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -137,7 +138,7 @@
         var senderAccount;
         web3.eth.getAccounts((error, accounts) => (senderAccount = accounts[0], document.getElementById('currentWalletAddress').innerHTML = senderAccount)); // Will user the current account selected in MetaMask. Refresh the page to update senderAccount after selected a new MetaMask account.
 
-        const MaxGas = 5000000; // Maximum gas a transaction can spend
+        const MaxGas = 500000; // Maximum gas a transaction can spend
         const GasPrice = web3.utils.toWei("1", "gwei"); //Amount of money to pay miners. The higher the value the faster your transaction will be mined.
 
         // Helper function for asynchronous calls
@@ -440,11 +441,11 @@
                 "stateMutability": "view",
                 "type": "function"
             }
-        ], '0x4d795a7027090614b7810bb90106aede0ca8a3bd', {
+        ], '0xf0319fc982a0dd77dc7245729771a25cf673ce48', {
             from: senderAccount,
             gas: MaxGas,
             gasPrice: GasPrice,
-            network_id: "3"
+            chainId: web3.utils.toHex(1337)
         });
 
         window.contractInstance = Contract;
@@ -537,25 +538,25 @@
         }
         // IPFS SECTION BEGIN
 
-        const ipfs = window.IpfsHttpClient;
+        const ipfs = window.IpfsHttpClient.create('/ip4/127.0.0.1/tcp/5001')
 
         window.ipfs = ipfs;
-        window.ipfsDataHost = "http://localhost:5001/ipfs";
+        // window.ipfsDataHost = "http://localhost:8080/api/v0";
 
-        function addFile(data, notificationList) {
-            window.ipfs.add(ipfs.types.Buffer.from(data), function (err, result) {
-                if (result) {
-                    lastIPFSHash = result[0].hash;
-                    textURL = window.ipfsDataHost + "/" + lastIPFSHash;
+        async function addFile(data, notificationList) {
+            console.log(data)
+            var result = await window.ipfs.add(buffer.Buffer(data));
+            if (result) {
+                console.log(result)
+                lastIPFSHash = result.cid.toString();
+                textURL = window.ipfsDataHost + "/" + lastIPFSHash;
 
-                    window.alert("Sent [http://localhost/BlockchainDAPP/parser.php?groupfile=" + lastIPFSHash + "] to the following email addresses: " + notificationList);
-
-                } else if (err) {
-                    console.log("Error reading file. Error: " + err);
-                } else {
-                    console.log("IPFS hash retrieval unsuccessful.")
-                }
-            });
+                window.alert("Sent [http://localhost/BlockchainDAPP/parser.php?groupfile=" + lastIPFSHash + "] to the following email addresses: " + notificationList);
+            } else if (err) {
+                console.log("Error reading file. Error: " + err);
+            } else {
+                console.log("IPFS hash retrieval unsuccessful.");
+            }
         }
 
         // IPFS SECTION END
@@ -584,8 +585,8 @@
         }
 
         function calculateSecretFromPublicKey(A, B) {
-            console.log(A)
-            console.log(B)
+            console.log(A.toString())
+            console.log(B.toString())
             console.log("A: " + bigInt(A.toString(), 16).toString() + " & B: " + B.toString());
             var SecretAB = bigInt(B).modPow(bigInt(A.toString(), 16), P);
 
@@ -603,6 +604,11 @@
         async function sendFile() {
 
             var Password = $("#groupKey").val();
+
+            console.log("Password")
+            console.log(Password)
+            console.log("FileBuffer")
+            console.log(fileBuffer.toString())
 
             var encryptedFileBuffer = CryptoJS.AES.encrypt(fileBuffer, Password);
 

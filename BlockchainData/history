@@ -50,3 +50,11 @@ miner.setEtherbase(eth.accounts[0]);
 miner.start()
 miner.setEtherbase(eth.accounts[0]);
 miner.start()
+miner.setEtherbase(eth.accounts[0]);
+miner.start()
+miner.setEtherbase(eth.accounts[0]);
+miner.start()
+miner.setEtherbase(eth.accounts[0]);
+miner.start()
+miner.setEtherbase(eth.accounts[0]);
+miner.start()
